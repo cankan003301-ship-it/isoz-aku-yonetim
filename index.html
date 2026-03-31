@@ -611,7 +611,8 @@ body.is-admin .admin-only{display:block}
       <div class="topbar-right">
         <div class="topbar-badge" id="year-badge">2026</div>
         <select id="global-year" onchange="changeGlobalYear(this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:13px;outline:none;cursor:pointer">
-          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2026" selected>2026</option>
           <option value="2025">2025</option>
           <option value="2024">2024</option>
           <option value="2023">2023</option>
@@ -624,8 +625,8 @@ body.is-admin .admin-only{display:block}
       <div id="firebase-banner" class="setup-banner" style="display:none">
         <span class="icon">⚠️</span>
         <div>
-          <h4>Firebase Bağlantısı Gerekli</h4>
-          <p>Canlı veri ve kullanıcı yönetimi için <code>firebase-config.js</code> dosyasına kendi Firebase bilgilerinizi girin. Şu an veriler yerel çalışıyor. Kurulum için: <strong>console.firebase.google.com</strong> → Yeni Proje → Web Uygulaması Ekle.</p>
+          <h4>Firebase Bağlantısı Kurulmamış</h4>
+          <p>Canlı veri için <code>index.html</code> dosyasında <code>apiKey</code>, <code>messagingSenderId</code> ve <code>appId</code> değerlerini Firebase Console'dan alın: <strong>console.firebase.google.com</strong> → <strong>isozaku</strong> projesi → Proje Ayarları → Web Uygulaması. Şu an veriler <strong>mersin_data.json</strong>'dan yerel olarak çalışıyor.</p>
         </div>
       </div>
 
@@ -687,6 +688,7 @@ body.is-admin .admin-only{display:block}
             <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:7px">Yıl</label>
             <select class="search-select" id="search-year" onchange="liveSearch(document.getElementById('search-input').value)">
               <option value="all">Tüm Yıllar</option>
+              <option value="2027">2027</option>
               <option value="2026">2026</option>
               <option value="2025">2025</option>
               <option value="2024">2024</option>
@@ -716,7 +718,8 @@ body.is-admin .admin-only{display:block}
           <div>
             <label style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:block;margin-bottom:7px">Yıl</label>
             <select class="search-select" id="cust-year" onchange="renderCustomerTable()">
-              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+              <option value="2026" selected>2026</option>
               <option value="2025">2025</option>
               <option value="2024">2024</option>
               <option value="2023">2023</option>
@@ -767,7 +770,7 @@ body.is-admin .admin-only{display:block}
           <div class="fld">
             <label>Yıl</label>
             <select id="txn-year">
-              <option>2026</option><option>2025</option><option>2024</option><option>2023</option>
+              <option>2027</option><option selected>2026</option><option>2025</option><option>2024</option><option>2023</option>
             </select>
           </div>
           <div class="fld">
@@ -848,6 +851,10 @@ body.is-admin .admin-only{display:block}
           <div class="chart-title">2026 – Bölge Satışları</div>
           <div id="bolge-2026"></div>
         </div>
+        <div class="chart-card">
+          <div class="chart-title">2027 – Bölge Satışları</div>
+          <div id="bolge-2027"></div>
+        </div>
       </div>
     </div>
 
@@ -857,7 +864,7 @@ body.is-admin .admin-only{display:block}
       <div class="table-wrap" style="margin-bottom:24px">
         <table class="data-table" id="monthly-full-table">
           <thead><tr>
-            <th>Ay</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th><th>2026</th>
+            <th>Ay</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th><th>2026</th><th style="color:var(--accent)">2027</th>
           </tr></thead>
           <tbody id="monthly-tbody"></tbody>
         </table>
@@ -887,11 +894,12 @@ body.is-admin .admin-only{display:block}
           <div class="fld"><label>Telefon</label><input type="tel" id="nc-phone" placeholder="0 XXX XXX XX XX"></div>
         </div>
         <div class="fld"><label>Adres</label><textarea id="nc-address" placeholder="Açık adres..."></textarea></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px">
           <div class="fld"><label>2023 Hedef</label><input type="number" id="nc-h23" value="0" min="0"></div>
           <div class="fld"><label>2024 Hedef</label><input type="number" id="nc-h24" value="0" min="0"></div>
           <div class="fld"><label>2025 Hedef</label><input type="number" id="nc-h25" value="0" min="0"></div>
           <div class="fld"><label>2026 Hedef</label><input type="number" id="nc-h26" value="0" min="0"></div>
+          <div class="fld"><label>2027 Hedef</label><input type="number" id="nc-h27" value="0" min="0"></div>
         </div>
         <button class="btn-primary" onclick="saveNewCustomer()">💾 Müşteri Kaydet</button>
       </div>
@@ -937,13 +945,17 @@ import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateD
 
 // ─── Firebase Config ────────────────────────
 // BURAYA KENDİ FIREBASE BİLGİLERİNİZİ GİRİN
+// ╔══════════════════════════════════════════════════════════╗
+// ║  FIREBASE YAPILANDIRMASI - BURAYA KENDİ BİLGİLERİNİZİ  ║
+// ║  console.firebase.google.com → Proje Ayarları → Web App ║
+// ╚══════════════════════════════════════════════════════════╝
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "YOUR_API_KEY",                          // ← değiştir
+  authDomain: "isozaku.firebaseapp.com",
+  projectId: "isozaku",
+  storageBucket: "isozaku.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",             // ← değiştir
+  appId: "YOUR_APP_ID"                             // ← değiştir
 };
 // ─────────────────────────────────────────────
 
@@ -1005,8 +1017,11 @@ async function loadData() {
     console.log('Data loaded:', Object.keys(MERSIN_DATA));
   } catch(e) {
     console.warn('mersin_data.json not found, using empty data');
-    MERSIN_DATA = {customers:{2023:{},2024:{},2025:{},2026:{}},merkez:{},bolge:{}};
+    MERSIN_DATA = {customers:{2023:{},2024:{},2025:{},2026:{},2027:{}},merkez:{},bolge:{2023:[],2024:[],2025:[],2026:[],2027:[]}};
   }
+  // 2027 yılı yoksa oluştur
+  if (!MERSIN_DATA.customers['2027']) MERSIN_DATA.customers['2027'] = {};
+  if (!MERSIN_DATA.bolge['2027']) MERSIN_DATA.bolge['2027'] = [];
   // Merge local extra customers
   for (const [year, custs] of Object.entries(localCustomers)) {
     if (!MERSIN_DATA.customers[year]) MERSIN_DATA.customers[year] = {};
@@ -1069,7 +1084,11 @@ window._startApp = async function(user) {
 
   const fb = window._fb;
   if (!fb || !fb.firebaseReady) {
-    document.getElementById('firebase-banner').style.display = 'flex';
+    const banner = document.getElementById('firebase-banner');
+    if (banner) banner.style.display = 'flex';
+  } else {
+    const banner = document.getElementById('firebase-banner');
+    if (banner) banner.style.display = 'none';
   }
 
   populateIlceSelect();
@@ -1209,7 +1228,7 @@ function renderTopCustomers() {
 function populateIlceSelect() {
   if (!MERSIN_DATA) return;
   const set = new Set();
-  for (const year of ['2023','2024','2025','2026']) {
+  for (const year of ['2023','2024','2025','2026','2027']) {
     Object.values(MERSIN_DATA.customers[year]||{}).forEach(c => { if(c.ilce&&c.ilce!=='nan') set.add(c.ilce); });
   }
   const sel = document.getElementById('search-ilce');
@@ -1224,7 +1243,7 @@ function liveSearch(q) {
     document.getElementById('search-results').innerHTML = '<div class="empty-state"><div class="e-icon">🔍</div><p>Aramak için en az 2 karakter girin</p></div>';
     return;
   }
-  const years = yearSel === 'all' ? ['2023','2024','2025','2026'] : [yearSel];
+  const years = yearSel === 'all' ? ['2023','2024','2025','2026','2027'] : [yearSel];
   const results = [];
   years.forEach(yr => {
     const custs = MERSIN_DATA.customers[yr] || {};
@@ -1323,7 +1342,17 @@ function buildCustomerCard(name, c, year) {
 
 function openCustomerCard(name) {
   document.getElementById('search-input').value = name;
-  document.getElementById('search-year').value = globalYear;
+  // Seçili müşterinin o yıldaki verisini göster
+  const yearSel = document.getElementById('search-year');
+  if (yearSel.value === 'all' || !MERSIN_DATA.customers[yearSel.value]?.[name]) {
+    // Müşterinin en son kaydı olduğu yılı bul
+    for (const y of ['2027','2026','2025','2024','2023']) {
+      if (MERSIN_DATA.customers[y]?.[name]) {
+        yearSel.value = y;
+        break;
+      }
+    }
+  }
   liveSearch(name);
   showPage('search');
 }
@@ -1400,8 +1429,10 @@ async function loadTransactions() {
     try {
       const snap = await fb.getDocs(fb.query(fb.collection(fb.db,'transactions'), fb.orderBy('createdAt','desc')));
       const fbTxns = snap.docs.map(d => ({id:d.id,...d.data()}));
-      // Merge: Firebase takes precedence
-      allTransactions = fbTxns;
+      // Firebase verileri önce, sonra sadece Firebase'de olmayan yerel işlemler
+      const fbIds = new Set(fbTxns.map(t => t.id));
+      const onlyLocal = localTransactions.filter(t => !fbIds.has(t.id));
+      allTransactions = [...fbTxns, ...onlyLocal];
     } catch(e) { console.warn('Transactions load error:', e); }
   }
   renderTransactions();
@@ -1432,14 +1463,16 @@ function formatDate(ts) {
   return d.toLocaleDateString('tr-TR');
 }
 
-let txnSuggestions = [];
 function suggestCustomers(q) {
   if (!q || q.length < 2) { document.getElementById('txn-suggestions').innerHTML = ''; return; }
-  const custs = MERSIN_DATA?.customers[globalYear] || {};
-  const matches = Object.keys(custs).filter(n => n.toLowerCase().includes(q.toLowerCase())).slice(0,6);
+  const allNames = new Set();
+  ['2023','2024','2025','2026','2027'].forEach(y => {
+    Object.keys(MERSIN_DATA?.customers[y] || {}).forEach(n => allNames.add(n));
+  });
+  const matches = [...allNames].filter(n => n.toLowerCase().includes(q.toLowerCase())).slice(0,8);
   document.getElementById('txn-suggestions').innerHTML = matches.length ? `
     <div style="position:absolute;z-index:100;width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-top:4px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4)">
-      ${matches.map(m => `<div onclick="selectCustomer('${m.replace(/'/g,"\\'")}'')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);transition:.15s" onmouseover="this.style.background='rgba(0,212,255,.05)'" onmouseout="this.style.background=''">${m}</div>`).join('')}
+      ${matches.map(m => `<div onclick="selectCustomer('${m.replace(/'/g,"\\'")}')" style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);transition:.15s" onmouseover="this.style.background='rgba(0,212,255,.05)'" onmouseout="this.style.background=''">${m}</div>`).join('')}
     </div>` : '';
 }
 function selectCustomer(name) {
@@ -1522,14 +1555,15 @@ function renderMonthlyTable() {
       <td class="num">${(row['2024']||0).toLocaleString('tr')}</td>
       <td class="num">${(row['2025']||0).toLocaleString('tr')}</td>
       <td class="num" style="color:var(--accent)">${(row['2026']||0).toLocaleString('tr')}</td>
+      <td class="num" style="color:var(--accent3)">${(row['2027']||0).toLocaleString('tr')}</td>
     </tr>`;
   }).join('');
 
   // Yearly compare bar chart
-  const years = ['2023','2024','2025','2026'];
+  const years = ['2023','2024','2025','2026','2027'];
   const totals = years.map(y => months.reduce((s, m2) => s + ((MERSIN_DATA.merkez[m2]||{})[y]||0), 0));
   const max = Math.max(...totals) || 1;
-  const colors = { '2023':'#5a7494','2024':'#0066ff','2025':'#00d4ff','2026':'#00ff88' };
+  const colors = { '2023':'#5a7494','2024':'#0066ff','2025':'#00d4ff','2026':'#00ff88','2027':'#ffb800' };
   document.getElementById('yearly-compare-chart').innerHTML = `<div class="bar-chart">` + years.map((y,i) => `
     <div class="bar-row">
       <div class="bar-label">${y}</div>
@@ -1542,7 +1576,7 @@ function renderMonthlyTable() {
 // BOLGE CHARTS
 // ══════════════════════════════════════════
 function renderBolgeCharts() {
-  ['2023','2024','2025','2026'].forEach(y => {
+  ['2023','2024','2025','2026','2027'].forEach(y => {
     const bolge = (MERSIN_DATA?.bolge||{})[y] || [];
     const el = document.getElementById('bolge-' + y);
     if (!el) return;
@@ -1571,8 +1605,8 @@ async function saveNewCustomer() {
   const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
   const monthly = {}; months.forEach(m => monthly[m] = 0);
   
-  const years = ['2023','2024','2025','2026'];
-  const hedefKeys = ['nc-h23','nc-h24','nc-h25','nc-h26'];
+  const years = ['2023','2024','2025','2026','2027'];
+  const hedefKeys = ['nc-h23','nc-h24','nc-h25','nc-h26','nc-h27'];
   
   years.forEach((y, i) => {
     const hedef = parseInt(document.getElementById(hedefKeys[i]).value) || 0;
@@ -1581,6 +1615,7 @@ async function saveNewCustomer() {
     localCustomers[y][name] = custData;
     if (!MERSIN_DATA.customers[y]) MERSIN_DATA.customers[y] = {};
     MERSIN_DATA.customers[y][name] = custData;
+    if (!MERSIN_DATA.bolge[y]) MERSIN_DATA.bolge[y] = [];
   });
   
   localStorage.setItem('mutlu_extra_custs', JSON.stringify(localCustomers));
@@ -1667,11 +1702,22 @@ function showToast(type, msg) {
 setTimeout(() => {
   const fb = window._fb;
   if (!fb || !fb.firebaseReady) {
-    // Show demo login hint
-    document.getElementById('login-email').placeholder = 'herhangi@email.com';
-    document.getElementById('login-password').placeholder = 'herhangi bir şifre';
+    // Demo mode: herhangi bir email/şifre ile giriş yapılabilir
+    const emailEl = document.getElementById('login-email');
+    const passEl = document.getElementById('login-password');
+    if (emailEl) emailEl.placeholder = 'herhangi@email.com (demo mod)';
+    if (passEl) passEl.placeholder = 'en az 4 karakter';
+    // Demo mod bilgi notu ekle
+    const box = document.querySelector('.login-box');
+    if (box && !document.getElementById('demo-note')) {
+      const note = document.createElement('div');
+      note.id = 'demo-note';
+      note.style.cssText = 'margin-top:12px;padding:10px 14px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;font-size:12px;color:var(--muted);text-align:center';
+      note.innerHTML = '🔓 <strong style="color:var(--accent)">Demo Mod</strong> — Firebase bağlı değil, yerel veri gösteriliyor';
+      box.appendChild(note);
+    }
   }
-}, 500);
+}, 600);
 </script>
 </body>
 </html>
