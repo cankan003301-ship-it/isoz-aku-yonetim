@@ -879,8 +879,13 @@ body.is-admin .admin-only{display:block}
     <div class="page admin-only" id="page-add-customer">
       <div class="form-card" style="max-width:600px">
         <div class="form-title">🆕 Yeni Müşteri Ekle</div>
-        <div class="fld"><label>Müşteri Adı</label><input type="text" id="nc-name" placeholder="Tam ticari unvan"></div>
+        <div class="fld"><label>Firma / Ticari Unvan</label><input type="text" id="nc-name" placeholder="Tam ticari unvan"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="fld"><label>Yetkili Ad Soyad</label><input type="text" id="nc-adsoyad" placeholder="Ahmet Yılmaz"></div>
+          <div class="fld"><label>Telefon</label><input type="tel" id="nc-phone" placeholder="0 XXX XXX XX XX"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="fld"><label>Şehir</label><input type="text" id="nc-sehir" placeholder="Mersin"></div>
           <div class="fld"><label>İlçe</label>
             <select id="nc-ilce">
               <option>AKDENİZ</option><option>MEZİTLİ</option><option>TOROSLAR</option>
@@ -891,7 +896,6 @@ body.is-admin .admin-only{display:block}
               <option>MERKEZ</option><option>DİĞER</option>
             </select>
           </div>
-          <div class="fld"><label>Telefon</label><input type="tel" id="nc-phone" placeholder="0 XXX XXX XX XX"></div>
         </div>
         <div class="fld"><label>Adres</label><textarea id="nc-address" placeholder="Açık adres..."></textarea></div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px">
@@ -955,10 +959,8 @@ const firebaseConfig = {
   projectId: "isozaku",
   storageBucket: "isozaku.firebasestorage.app",
   messagingSenderId: "113708679267",
-  appId: "1:113708679267:web:05ffa080915a0b1d7c3856",
-  measurementId: "G-4B5GKVT9RZ"
+  appId: "1:113708679267:web:05ffa080915a0b1d7c3856"
 };
-// ─────────────────────────────────────────────
 
 let app, auth, db;
 let firebaseReady = false;
@@ -1598,10 +1600,12 @@ function renderBolgeCharts() {
 // ══════════════════════════════════════════
 async function saveNewCustomer() {
   const name = document.getElementById('nc-name').value.trim();
+  const adsoyad = document.getElementById('nc-adsoyad').value.trim();
   const ilce = document.getElementById('nc-ilce').value;
+  const sehir = document.getElementById('nc-sehir').value.trim() || 'Mersin';
   const phone = document.getElementById('nc-phone').value.trim();
   const address = document.getElementById('nc-address').value.trim();
-  if (!name) { showToast('error','Müşteri adı gerekli'); return; }
+  if (!name) { showToast('error','Firma adı gerekli'); return; }
   
   const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
   const monthly = {}; months.forEach(m => monthly[m] = 0);
@@ -1611,7 +1615,7 @@ async function saveNewCustomer() {
   
   years.forEach((y, i) => {
     const hedef = parseInt(document.getElementById(hedefKeys[i]).value) || 0;
-    const custData = { ilce, monthly:{...monthly}, monthly_hurda:{}, toplam:0, hurda:0, hedef, prev_satis:0, phone, address };
+    const custData = { ilce, sehir, monthly:{...monthly}, monthly_hurda:{}, toplam:0, hurda:0, hedef, prev_satis:0, phone, address, adsoyad };
     if (!localCustomers[y]) localCustomers[y] = {};
     localCustomers[y][name] = custData;
     if (!MERSIN_DATA.customers[y]) MERSIN_DATA.customers[y] = {};
@@ -1625,15 +1629,19 @@ async function saveNewCustomer() {
   const fb = window._fb;
   if (fb && fb.firebaseReady && fb.db) {
     try {
-      await fb.setDoc(fb.doc(fb.db,'customers',name.replace(/\s+/g,'_')), { name, ilce, phone, address, createdAt: fb.serverTimestamp() });
-      showToast('success','Müşteri Firebase\'e kaydedildi');
-    } catch(e) { showToast('success','Müşteri yerel olarak kaydedildi'); }
+      await fb.setDoc(fb.doc(fb.db,'customers',name.replace(/\s+/g,'_')), {
+        name, adsoyad, ilce, sehir, phone, address, createdAt: fb.serverTimestamp()
+      });
+      showToast('success','Müşteri Firebase\'e kaydedildi ✓');
+    } catch(e) { showToast('error','Firebase hatası: '+e.message); }
   } else {
-    showToast('success','Müşteri kaydedildi');
+    showToast('success','Müşteri yerel olarak kaydedildi');
   }
   
   document.getElementById('nc-name').value='';
+  document.getElementById('nc-adsoyad').value='';
   document.getElementById('nc-phone').value='';
+  document.getElementById('nc-sehir').value='';
   document.getElementById('nc-address').value='';
   renderCustomerTable();
   showPage('customers');
