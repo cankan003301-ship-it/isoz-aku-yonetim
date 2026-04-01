@@ -1,7 +1,5 @@
 // ============================================================
 // FIREBASE YAPILANDIRMASI
-// Bu dosyayı kendi Firebase projenizle doldurun
-// Firebase Console: https://console.firebase.google.com
 // ============================================================
 
 const firebaseConfig = {
@@ -15,4 +13,4 @@ const firebaseConfig = {
 };
 
 // Firebase başlatma
-window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+window.FIREBASE_CONFIG = firebaseConfig;
