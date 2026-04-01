@@ -14,3 +14,4 @@ const firebaseConfig = {
 
 // Firebase başlatma
 window.FIREBASE_CONFIG = firebaseConfig;
+window.firebaseConfig = firebaseConfig;
